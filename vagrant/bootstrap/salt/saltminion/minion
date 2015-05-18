@@ -1,0 +1,4 @@
+grains:
+  saltenvironment: vagrant
+log_level_logfile: debug
+

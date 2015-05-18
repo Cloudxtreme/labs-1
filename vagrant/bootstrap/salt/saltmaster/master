@@ -1,0 +1,8 @@
+auto_accept: True
+failhard: True 
+file_roots:
+  base:
+    - /srv/salt/formula
+ext_pillar:
+  - salthiera: /srv/salt/salthiera.yaml
+log_level_logfile: debug

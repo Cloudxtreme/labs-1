@@ -1,0 +1,139 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+
+# variables
+@DEBUGMODE = false
+@PROVIDERS = { :vbox => "virtualbox", :docker => "docker" }
+@HOSTIP = "192.168.1.7"
+
+domain = "apt-forge.vagrant"
+mounts = { :saltmaster => { :mountpoint => "/srv/salt", :localdir => "salt", :nfs => false } }
+mounts = { :docker => { :mountpoint => "/vagrant", :localdir => "./", :nfs => false } }
+boxes = { :snappy1504 => { 
+	          :path => "http://cloud-images.ubuntu.com/snappy/15.04/core/stable/current/core-stable-amd64-vagrant.box",
+            :creds => { :username => "ubuntu", :password => "ubuntu" },
+            :prov => @PROVIDERS[:vbox]
+          }, 
+          :vivid => { 
+       	    :path => "https://cloud-images.ubuntu.com/vagrant/vivid/current/vivid-server-cloudimg-amd64-vagrant-disk1.box",
+            :creds => { :username => "vagrant", :password => "vagrant" },
+            :prov => @PROVIDERS[:vbox]
+          },
+          :debian78 => { 
+       	    :path => "chef/debian-7.8",
+            :creds => { :username => "vagrant", :password => "vagrant" },
+            :prov => @PROVIDERS[:vbox]
+          },
+          :d_ubu1204 => { 
+       	    :path => "ubuntu:12.04.5",
+            :creds => { :username => "ubuntu", :password => "ubuntu" },
+            :prov => @PROVIDERS[:docker]
+          },
+          :d_ubu1504 => { 
+       	    :path => "ubuntu:15.04",
+            :creds => { :username => "ubuntu", :password => "password" },
+            :prov => @PROVIDERS[:docker]
+          },
+          :atomic22 => { 
+            :path => "Fedora-Cloud-Atomic-Vagrant-22", 
+            :creds => { :username => "vagrant", :password => "vagrant" },
+            :prov => @PROVIDERS[:vbox]
+          } 
+        }
+
+servers = [
+  { :ip => "192.168.123.2", :host => "salt-master", :mem => 512, :mounts => [:saltmaster], :saltmaster => true, :box => boxes[:vivid], :pfwd => ["4505", "4506"]  },
+  # TODO Snappy has fucked inet ordering ... { :ip => "192.168.123.3", :host => "snap01", :box => boxes[:snappy1504] },
+  # TODO Fedora bootstrap not supported yet  { :ip => "192.168.123.4", :host => "atom01", :box => boxes[:atomic22] },
+  { :ip => "192.168.123.5", :host => "vivi01", :box => boxes[:vivid] },
+  { :ip => "192.168.123.6", :host => "deb01", :box => boxes[:debian78] },
+  { :ip => "192.168.123.7", :host => "d_ubu01", :box => boxes[:d_ubu1204], :mounts => [:docker] },
+  { :ip => "192.168.123.7", :host => "d_ubu02", :box => boxes[:d_ubu1504], :mounts => [:docker] }
+]
+
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+#####
+  servers.each do |server|
+    server[:dist]     ||= "#{server[:box][:path]}"
+    server[:cpus]     ||= 1
+    server[:mem]      ||= 512
+    server[:mounts]   ||= {}
+    server[:pfwd]     ||= {}
+    server[:fqdn]     ||= "#{server[:host]}.#{domain}"
+    server[:prov]     ||= "#{server[:box][:prov]}"
+
+
+    config.vm.define server[:host].to_sym do |vm_config|
+
+
+
+      # switch @provider:
+      case server[:prov]
+        when @PROVIDERS[:vbox]
+          vm_config.vm.box = "#{server[:dist]}"
+          vm_config.vm.network "private_network", ip: "#{server[:ip]}", virtualbox__intnet: "#{domain}"
+          vm_config.vm.hostname = "#{server[:host]}.#{domain}"
+
+          vm_config.vm.provider server[:prov] do |vb|
+            vb.customize ["modifyvm", :id, "--memory", server[:mem]]
+            vb.customize ["modifyvm", :id, "--cpus", server[:cpus]]
+            vb.customize ["modifyvm", :id, "--name", server[:fqdn]]
+            vb.customize ["modifyvm", :id, "--groups", "/#{domain}"]
+            server[:pfwd].each do |pfwd|
+              vm_config.vm.network "forwarded_port", guest: pfwd, host: pfwd, host_ip: @HOSTIP
+            end
+            vb.gui = true if @DEBUGMODE
+          end
+        when @PROVIDERS[:docker]
+          vm_config.vm.provider server[:prov] do |d|
+            #d.image = "#{server[:dist]}"
+            d.privileged = true
+            d.build_dir = "./docker/#{server[:dist]}"
+            d.name = "#{server[:host]}.#{domain}"
+            d.remains_running = true
+            d.has_ssh = true
+          end
+      end
+      
+      # initialize
+      vm_config.ssh.username = "#{server[:box][:creds][:username]}"
+      vm_config.ssh.password = "#{server[:box][:creds][:password]}"
+
+      # mounts
+      mounts.each do |mount_name, mount_info|
+        if server[:mounts].include? mount_name
+          if mount_info[:nfs]
+            vm_config.vm.synced_folder mount_info[:localdir], mount_info[:mountpoint], :nfs => mount_info[:nfs], :nfs_version => 2
+          else
+            vm_config.vm.synced_folder mount_info[:localdir], mount_info[:mountpoint]
+          end
+        end
+      end
+
+      # provision
+      vm_config.vm.provision :shell do |shell|
+        shell.path = "bootstrap/salt/hosts.sh"
+        shell.keep_color = true
+      end
+      if server[:saltmaster]
+        vm_config.vm.provision :shell do |shell|
+          shell.path = "bootstrap/salt/saltmaster/bootstrap.sh"
+            shell.keep_color = true
+        end
+      else
+        vm_config.vm.provision :shell do |shell|
+          shell.path = "bootstrap/salt/saltminion/bootstrap.sh"
+            shell.keep_color = true
+        end
+      end
+    end
+  end
+#####
+
+end

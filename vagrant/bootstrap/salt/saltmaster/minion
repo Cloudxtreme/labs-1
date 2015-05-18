@@ -1,0 +1,6 @@
+master: localhost
+id: salt-master.apt-forge.vagrant
+grains:
+  saltenvironment: vagrant
+log_level_logfile: debug
+
