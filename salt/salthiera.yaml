@@ -1,0 +1,12 @@
+hierarchy:
+  - eyaml:/srv/salt/environments/%{saltenvironment}/*.eyaml.%{id}
+  - eyaml:/srv/salt/environments/%{saltenvironment}/*.eyaml
+  - eyaml:/srv/salt/environments/common/*.eyaml
+  - efiles:/srv/salt/environments/%{saltenvironment}/efiles/**/*
+  - efiles:/srv/salt/environments/common/efiles/**/*
+  - yaml:/srv/salt/environments/%{saltenvironment}/*.yaml.%{id}
+  - yaml:/srv/salt/environments/%{saltenvironment}/*.yaml
+  - yaml:/srv/salt/environments/common/*.yaml
+  - files:/srv/salt/environments/%{saltenvironment}/files/**/*
+  - files:/srv/salt/environments/common/files/**/*
+

@@ -1,0 +1,4 @@
+common_users:
+  - { name: "wwarmus", groups: ["wheel", "sudo", "adm"] }
+
+#revoked_users:
