@@ -1,0 +1,29 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Mountpoints between host and guests
+MOUNTS = { :saltmaster => { :mountpoint => "/srv/salt", :localdir => "salt", :nfs => false },
+           :docker => { :mountpoint => "/vagrant", :localdir => "./", :nfs => false }
+         }
+
+# Supported providers
+PROVIDERS = { :vbox => "virtualbox", :docker => "docker" }
+
+# Supported boxes
+BOXES = { :vivid => {
+            :path => "https://cloud-images.ubuntu.com/vagrant/vivid/current/vivid-server-cloudimg-amd64-vagrant-disk1.box",
+            :creds => { :username => "vagrant", :password => "vagrant" },
+            :prov => @PROVIDERS[:vbox]
+          },
+          :d_ubu1504 => {
+            :path => "ubuntu:15.04",
+            :creds => { :username => "ubuntu", :password => "password" },
+            :prov => @PROVIDERS[:docker]
+          },
+        }
+
+# Server list
+SERVERS = [
+  { :ip => "192.168.123.2", :host => "salt-master", :mem => 512, :mounts => [:saltmaster], :saltmaster => true, :box => BOXES[:vivid], :pfwd => ["4505", "4506"]  },
+  { :ip => "192.168.123.3", :host => "d_ubu02", :box => BOXES[:d_ubu1504], :mounts => [:docker] }
+]
