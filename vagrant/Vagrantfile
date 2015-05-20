@@ -29,7 +29,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       case server[:prov]
         when PROVIDERS[:vbox]
           vm_config.vm.box = "#{server[:dist]}"
-          vm_config.vm.network "private_network", ip: "#{server[:ip]}", virtualbox__intnet: "#{DOMAIN}"
+          vm_config.vm.network "private_network", ip: "#{server[:ip]}"#, virtualbox__intnet: "#{DOMAIN}"
           vm_config.vm.hostname = "#{server[:host]}.#{DOMAIN}"
           vm_config.vm.provider server[:prov] do |vb|
             vb.customize ["modifyvm", :id, "--memory", server[:mem]]
@@ -37,7 +37,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             vb.customize ["modifyvm", :id, "--name", server[:fqdn]]
             vb.customize ["modifyvm", :id, "--groups", "/#{DOMAIN}"]
             server[:pfwd].each do |pfwd|
-              vm_config.vm.network "forwarded_port", guest: pfwd, host: pfwd, host_ip: HOSTIP
+              vm_config.vm.network "forwarded_port", guest: pfwd, host: pfwd, host_ip: "#{HOSTIP}"
             end
             vb.gui = true if DEBUGMODE
           end
@@ -68,21 +68,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
 
       # provision
-      #vm_config.vm.provision :shell do |shell|
-      #  shell.path = "bootstrap/salt/hosts.sh"
-      #  shell.keep_color = true
-      #end
-      #if server[:saltmaster]
-      #  vm_config.vm.provision :shell do |shell|
-      #    shell.path = "bootstrap/salt/saltmaster/bootstrap.sh"
-      #      shell.keep_color = true
-      #  end
-      #else
-      #  vm_config.vm.provision :shell do |shell|
-      #    shell.path = "bootstrap/salt/saltminion/bootstrap.sh"
-      #      shell.keep_color = true
-      #  end
-      #end
+      vm_config.vm.provision :shell do |shell|
+        shell.path = "bootstrap/salt/hosts.sh"
+        shell.keep_color = true
+      end
+      if server[:saltmaster]
+        vm_config.vm.provision :shell do |shell|
+          shell.path = "bootstrap/salt/saltmaster/bootstrap.sh"
+            shell.keep_color = true
+        end
+      else
+        vm_config.vm.provision :shell do |shell|
+         shell.path = "bootstrap/salt/saltminion/bootstrap.sh"
+            shell.keep_color = true
+        end
+      end
     end
   end
 #####

@@ -52,7 +52,7 @@ BOXES = { :snappy1504 => {
 
 # Servers
 SERVERS = [
-  { :ip => "192.168.123.2", :host => "salt-master", :mem => 512, :mounts => [:saltmaster], :saltmaster => true, :box => BOXES[:vivid], :pfwd => ["4505", "4506"]  },
+  { :ip => "192.168.123.2", :host => "salt", :mem => 512, :mounts => [:saltmaster], :saltmaster => true, :box => BOXES[:vivid], :pfwd => ["4505", "4506"]  },
   # TODO Snappy has fucked inet ordering ... { :ip => "192.168.123.3", :host => "snap01", :box => BOXES[:snappy1504] },
   # TODO Fedora bootstrap not supported yet  { :ip => "192.168.123.4", :host => "atom01", :box => BOXES[:atomic22] },
   { :ip => "192.168.123.5", :host => "vivi01", :box => BOXES[:vivid] },

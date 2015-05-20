@@ -14,13 +14,9 @@ include:
   - .IN_defaults
   - .OUT_defaults
   - .IN_ssh
-  {% if 'salt-master' in hostname -%}
+  {% if 'salt' in hostname -%}
   - .IN_salt
   {% endif -%}
   - .IN_logandreject
   - .OUT_logandreject
   - .policy
-
-iptables-persistent-save:
-  cmd.run:
-    - name: /usr/sbin/netfilter-persistent save

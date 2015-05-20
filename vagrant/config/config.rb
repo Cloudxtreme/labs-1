@@ -5,7 +5,7 @@
 VAGRANTFILE_API_VERSION = "2"
 
 # Toggle debug mode 
-DEBUGMODE = true
+DEBUGMODE = false
 
 # Set the host IP on which ports are exposed from guests
 HOSTIP = "192.168.123.1"
