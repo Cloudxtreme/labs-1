@@ -31,4 +31,8 @@ RUN \
   sudo apt-get update && \
   sudo apt-get install google-talkplugin 
 
+Run \
+  sudo apt-get install -y pulseaudio
+  sudo apt-get clean
+
 CMD ["/usr/sbin/services-sshd"]

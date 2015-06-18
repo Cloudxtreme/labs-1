@@ -21,7 +21,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     server[:prov]     ||= "#{server[:box][:prov]}"
     # docker-specific
     server[:privil]   ||= false
-    server[:cargs]    ||= nil
+    server[:cargs]    ||= []
+    server[:expose]   ||= []
 
     config.vm.define server[:host].to_sym do |vm_config|
 
@@ -44,11 +45,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         when PROVIDERS[:docker]
           vm_config.vm.provider server[:prov] do |d|
             d.privileged = server[:privil]
-            d.create_args = server[:cargs]
+            d.create_args = ["-h", "#{server[:host]}", "--dns-search=#{DOMAIN}"] + server[:cargs]
             d.build_dir = "./docker/#{server[:dist]}"
             d.name = "#{server[:host]}.#{DOMAIN}"
             d.remains_running = true
             d.has_ssh = true
+            server[:pfwd].each do |pfwd|
+              server[:expose] += ["#{pfwd}:#{pfwd}"]
+            end
+            d.ports = server[:expose]
           end
       end
       
