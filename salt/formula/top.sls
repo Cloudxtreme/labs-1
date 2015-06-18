@@ -10,3 +10,6 @@ base:
     - elk.elastic
     - elk.logstash
     - elk.kibana
+
+  'es*':
+    - elk.elastic

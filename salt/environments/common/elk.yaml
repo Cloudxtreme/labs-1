@@ -3,6 +3,10 @@ elastic:
     admin:$1$lpDlNiof$i9xiOAAogMr4su7IxVBHz/
   bind_host: 0.0.0.0
   host: 127.0.0.1
+  cluster:
+    clustered: false
+    name: none
+    nodes: null
 
 kibana:
   bind_host: 0.0.0.0

@@ -60,5 +60,6 @@ SERVERS = [
   { :ip => "192.168.123.7", :host => "d_ubu01", :box => BOXES[:d_ubu1204], :mounts => [:docker] },
   { :ip => "192.168.123.8", :host => "d_ubu02", :box => BOXES[:d_ubu1504], :mounts => [:docker] },
   { :ip => "192.168.123.9", :host => "d_chrome", :box => BOXES[:d_ubu1504chrome], :mounts => [:docker, :chrome], :privil => true, :cargs => [ "-v", "/dev/video0:/dev/video0"] },
-  { :ip => "192.168.123.10", :host => "elk", :box => BOXES[:d_ubu1504], :privil => true, :pfwd => ["5601", "8080", "9200", "5000"] }
+  { :ip => "192.168.123.10", :host => "elk", :box => BOXES[:d_ubu1504], :privil => true, :pfwd => ["5601", "8080", "9200", "5000"] },
+  { :ip => "192.168.123.11", :host => "es0", :box => BOXES[:d_ubu1504], :privil => true }
 ]

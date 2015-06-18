@@ -22,7 +22,15 @@ include:
   - .IN_elastic
   - .IN_logstash
   - .IN_kibana
+  {% elif 'es' in hostname -%}
+  - .IN_elastic
   {% endif -%}
   - .IN_logandreject
+  {% if 'es' in hostname -%}
+  - .OUT_elastic
+  {% endif -%}
+  {% if 'elk' in hostname -%}
+  - .OUT_elastic
+  {% endif -%}
   - .OUT_logandreject
   - .policy

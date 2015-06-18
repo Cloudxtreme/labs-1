@@ -13,10 +13,12 @@ elasticsearch_soft:
 
 elastic_conf:
   file.managed:
-    - name: '/etc/elasticsearch/elasticsearch.yml'
-    - contents: |+
-          network.bind_host: {{ bind_host }}
+    - source: salt://elk/templates/elasticsearch.yml
+    - name: /etc/elasticsearch/elasticsearch.yml
     - mode: 644
+    - template: jinja
+    - watch_in:
+      service: elastic_service
 
 elastic_service:
   pkg.installed:

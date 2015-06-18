@@ -1,7 +1,7 @@
-iptables_in_tcp_elastic:
+iptables_out_tcp_elastic:
   iptables.append:
     - table: filter
-    - chain: INPUT
+    - chain: OUTPUT
     - jump: ACCEPT
     - match: state
     - connstate: NEW
@@ -10,11 +10,11 @@ iptables_in_tcp_elastic:
     - save: True
     - require:
       - pkg: iptables
- 
-iptables_in_udp_elastic:
+
+iptables_out_udp_elastic:
   iptables.append:
     - table: filter
-    - chain: INPUT
+    - chain: OUTPUT
     - jump: ACCEPT
     - match: state
     - connstate: NEW
@@ -23,11 +23,11 @@ iptables_in_udp_elastic:
     - save: True
     - require:
       - pkg: iptables
- 
-iptables_in_elastic_zen:
+
+iptables_out_elastic_zen:
   iptables.append:
     - table: filter
-    - chain: INPUT
+    - chain: OUTPUT
     - jump: ACCEPT
     - match: state
     - connstate: NEW
@@ -36,4 +36,4 @@ iptables_in_elastic_zen:
     - save: True
     - require:
       - pkg: iptables
- 
+
