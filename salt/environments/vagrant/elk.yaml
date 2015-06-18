@@ -1,0 +1,4 @@
+logstash:
+  in_rsyslog:
+    host: 10.93.5.38
+    port: 5000

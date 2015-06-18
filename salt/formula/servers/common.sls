@@ -1,2 +1,3 @@
 include:
   - firewall
+  - elk.client

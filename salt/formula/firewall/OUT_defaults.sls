@@ -136,3 +136,16 @@ iptables_out_salt_4506:
     - require:
       - pkg: iptables
 
+iptables_out_logstash_rsyslog:
+  iptables.append:
+    - table: filter
+    - chain: OUTPUT
+    - jump: ACCEPT
+    - match: state
+    - connstate: NEW
+    - proto: tcp
+    - dport: 5000
+    - save: True
+    - require:
+      - pkg: iptables
+

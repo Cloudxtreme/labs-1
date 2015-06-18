@@ -1,0 +1,18 @@
+elastic:
+  htpasswd: |
+    admin:$1$lpDlNiof$i9xiOAAogMr4su7IxVBHz/
+  bind_host: 0.0.0.0
+  host: 127.0.0.1
+
+kibana:
+  bind_host: 0.0.0.0
+  pkg:
+    uri: https://download.elastic.co/kibana/kibana/kibana-4.0.2-linux-x64.tar.gz
+    hash: sha256=4cc36e5c6ca7c495667319df75feda1facb7c43a3d9686841f07a2522adec294
+    name: kibana-4.0.2-linux-x64
+  install_dir: /opt/kibana
+
+logstash:
+  in_rsyslog:
+    host: 127.0.0.1
+    port: 5000

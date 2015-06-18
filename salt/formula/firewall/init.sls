@@ -11,11 +11,17 @@ iptables-persistent:
       - pkg: iptables
 
 include:
+  - .flush
   - .IN_defaults
   - .OUT_defaults
   - .IN_ssh
   {% if 'salt' in hostname -%}
   - .IN_salt
+  {% endif -%}
+  {% if 'elk' in hostname -%}
+  - .IN_elastic
+  - .IN_logstash
+  - .IN_kibana
   {% endif -%}
   - .IN_logandreject
   - .OUT_logandreject

@@ -1,0 +1,2 @@
+apt_logstash: http://packages.elasticsearch.org/logstash/1.5/debian
+apt_elastic: http://packages.elasticsearch.org/elasticsearch/1.5/debian

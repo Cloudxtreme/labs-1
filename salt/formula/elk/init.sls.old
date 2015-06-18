@@ -1,0 +1,140 @@
+include:
+  - java
+  - apt.client
+
+{% set kibana_port = salt['pillar.get']('kibana:httpport', '8080') %}
+{% set elastic_port = salt['pillar.get']('elasticsearch:httpport', '9200') %}
+{% set server_name = salt['pillar.get']('kibana:site_name', 'kibana.cdp') %}
+{% set wwwhome = salt['pillar.get']('kibana:wwwhome', '/var/www') %}
+{% set kibana_wwwroot = wwwhome + '/' + server_name + '/' %}
+{% set elastic_htpasswd_file = '/etc/nginx/elastic_passwd' %}
+{% set bind_host = salt['pillar.get']('kibana:bind_host', '0.0.0.0') %}
+
+
+elasticsearch_soft:
+  pkg.installed:
+    - name: elasticsearch
+    - version: 1.5.2
+    - require:
+      - file: elasticsearch_repo
+
+logstash_soft:
+  pkg.installed:
+    - name: logstash
+    - version: 1:1.5.0-1
+    - require:
+      - file: logstash_repo
+      - pkg: elasticsearch
+
+kibana:
+  archive.extracted:
+    - name: {{ kibana_wwwroot }}
+    - source: https://download.elastic.co/kibana/kibana/kibana-4.0.2-linux-x64.tar.gz
+    - source_hash: sha512=702bdcf31c8686bfd1c3e7e1a379d6cff8bc52da0838520c29d4dd20249c436cbc0352f05a3030aa8f9c2c5d4df447c7763547172af454e572b7977efa29a2cb
+    - archive_format: tar
+    - tar_options: xf
+
+kibana_static_dir:
+  file.directory:
+    - name: {{ kibana_wwwroot }}
+    - user: www-data
+    - group: www-data
+    - makedirs: True
+
+nginx_sites_dir:
+  file.directory:
+    - name: /etc/nginx/sites-enabled
+    - makedirs: True
+
+kibana_config_js:
+  file.managed:
+    - name: '{{ kibana_wwwroot }}/config.js'
+    - template: jinja
+    - source: salt://elk/templates/config.js
+    - context:
+       kibana_port: {{ kibana_port }}
+       bind_host: {{ bind_host }}
+
+elastic_htpasswd:
+  file.managed:
+    - name: {{ elastic_htpasswd_file }}
+    - contents_pillar: elastic:htpasswd
+    - group: www-data
+    - mode: 640
+
+elastic_conf:
+  file.managed:
+    - name: '/etc/elasticsearch/elasticsearch.yml'
+    - contents: |+
+          network.bind_host: {{ bind_host }}
+    - mode: 644
+    - require:
+      - file: elasticsearch_repo
+
+elastic_service:
+  pkg.installed:
+    - name: elasticsearch
+    - require:
+      - file: elastic_conf
+  service.running:
+    - name: elasticsearch
+    - watch:
+      - file: elastic_conf
+    - require:
+      - pkg: elasticsearch
+
+logstash_service:
+  pkg.installed:
+  - name: logstash
+  - require:
+    - file: logstash_repo
+    - service: elasticsearch
+  service.running:
+    - name: logstash
+
+nginx_static_site:
+  pkg.installed:
+    - name: nginx
+    - require:
+      - file: nginx_sites_dir
+      - file: kibana_static_dir
+      - file: elastic_htpasswd
+
+  service.running:
+    - name: nginx
+    - reload: True
+    - enable: True
+    - watch:
+      - file: nginx_static_site
+    - require:
+      - service: elasticsearch
+
+  file.managed:
+    - template: jinja
+    - source: salt://elk/templates/nginx_kibana_site
+    - name: /etc/nginx/sites-enabled/kibana
+    - mode: 644
+    - context:
+       kibana_port: {{ kibana_port }}
+       server_name: {{ server_name }}
+       kibana_wwwroot: {{ kibana_wwwroot }}
+       elastic_htpasswd_file: {{ elastic_htpasswd_file }}
+
+
+kibana_service:
+  file.managed:
+    - source: salt://elk/files/kibana4.initd
+    - name: /etc/init.d/kibana4
+    - mode: 755
+    #file.managed:
+      #- source: salt://elk/files/kibana4.service
+      #- name: /etc/systemd/system/kibana4.service
+  service.running:
+    - name: kibana4
+    - enable: True
+
+
+
+
+# TODO:
+# * point config.js to port {{ kibana_port }} and not port 9200

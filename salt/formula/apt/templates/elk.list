@@ -1,0 +1,4 @@
+{% set apt_elastic = salt['pillar.get']('apt_elastic', '') -%}
+{% set apt_logstash = salt['pillar.get']('apt_logstash', '') -%}
+deb {{ apt_elastic }} stable main
+deb {{ apt_logstash }} stable main

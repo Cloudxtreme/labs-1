@@ -1,13 +1,11 @@
 iptables-in-default-reject:
-  cmd.run:
-    - name: iptables -P INPUT DROP
-    - unless: iptables -L INPUT | head -1 | grep DROP
-    - require:
-      - pkg: iptables
+  iptables.set_policy:
+    - table: filter
+    - chain: INPUT
+    - policy: DROP
 
 iptables-out-default-reject:
-  cmd.run:
-    - name: iptables -P OUTPUT DROP
-    - unless: iptables -L DROP | head -1 | grep DROP
-    - require:
-      - pkg: iptables
+  iptables.set_policy:
+    - table: filter
+    - chain: OUTPUT
+    - policy: DROP
