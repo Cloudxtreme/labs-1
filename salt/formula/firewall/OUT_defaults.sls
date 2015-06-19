@@ -1,3 +1,4 @@
+{% set aptcacher_port = salt['pillar.get']('apt:proxy:bind_port') -%}
 iptables-out-established:
   iptables.append:
     - table: filter
@@ -145,6 +146,19 @@ iptables_out_logstash_rsyslog:
     - connstate: NEW
     - proto: tcp
     - dport: 5000
+    - save: True
+    - require:
+      - pkg: iptables
+
+iptables_out_aptcacher:
+  iptables.append:
+    - table: filter
+    - chain: OUTPUT
+    - jump: ACCEPT
+    - match: state
+    - connstate: NEW
+    - proto: tcp 
+    - dport: {{ aptcacher_port }}
     - save: True
     - require:
       - pkg: iptables

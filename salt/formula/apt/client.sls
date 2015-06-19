@@ -17,6 +17,12 @@ apt-elk-repos:
     - watch_in:
       - cmd: apt-update
 
+apt-proxy:
+  file.managed:
+    - source: salt://apt/templates/apt.conf.d-02proxy
+    - name: /etc/apt/apt.conf.d/02proxy
+    - template: jinja
+
 apt-update:
   cmd.wait:
     - name: apt-get update

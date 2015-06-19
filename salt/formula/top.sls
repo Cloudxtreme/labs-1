@@ -13,3 +13,6 @@ base:
 
   'es*':
     - elk.elastic
+
+  'aptcacher*':
+    - apt.proxy

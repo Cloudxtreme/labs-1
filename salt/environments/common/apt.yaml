@@ -1,2 +1,8 @@
 apt_logstash: http://packages.elasticsearch.org/logstash/1.5/debian
 apt_elastic: http://packages.elasticsearch.org/elasticsearch/1.5/debian
+
+apt:
+  proxy:
+    host: 127.0.0.1
+    bind_host: 0.0.0.0
+    bind_port: 3142

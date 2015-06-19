@@ -25,6 +25,9 @@ include:
   {% elif 'es' in hostname -%}
   - .IN_elastic
   {% endif -%}
+  {% if 'aptcacher' in hostname -%}
+  - .IN_aptcacher
+  {% endif -%}
   - .IN_logandreject
   {% if 'es' in hostname -%}
   - .OUT_elastic

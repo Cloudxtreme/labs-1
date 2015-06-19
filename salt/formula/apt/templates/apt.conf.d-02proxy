@@ -1,0 +1,3 @@
+{% set host = salt['pillar.get']('apt:proxy:host') -%}
+{% set port = salt['pillar.get']('apt:proxy:bind_port') -%}
+Acquire::http { Proxy "http://{{ host }}:{{ port }}"; };

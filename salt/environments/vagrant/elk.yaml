@@ -5,6 +5,7 @@ elastic:
     nodes:
       - elk
       - es0
+      - es1
 
 logstash:
   in_rsyslog:
